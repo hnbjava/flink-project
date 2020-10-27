@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>vip.hnbcao</groupId>
+    <artifactId>flink-project</artifactId>
+    <version>0.0.1_1.11.2</version>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <log4j.version>2.11.1</log4j.version>
+        <commons-text.version>1.8</commons-text.version>
+        <commons-lang3.version>3.10</commons-lang3.version>
+        <lombok.version>1.18.12</lombok.version>
+        <slf4j.version>1.7.26</slf4j.version>
+        <flink.version>1.11.2</flink.version>
+        <scala.binary.version>2.11</scala.binary.version>
+        <hive.jdbc.version>2.1.1-cdh6.3.0</hive.jdbc.version>
+        <junit.version>4.12</junit.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-java</artifactId>
+            <version>${flink.version}</version>
+<!--            <scope>provided</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
+            <version>${flink.version}</version>
+<!--            <scope>provided</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-clients_${scala.binary.version}</artifactId>
+            <version>${flink.version}</version>
+<!--            <scope>provided</scope>-->
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-elasticsearch7_${scala.binary.version}</artifactId>
+            <version>${flink.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>scala-library</artifactId>
+                    <groupId>org.scala-lang</groupId>
+                </exclusion>
+            </exclusions>
+<!--            <scope>provided</scope>-->
+        </dependency>
+
+        <!-- jackson -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.11.2</version>
+            <!--            <scope>test</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.11.2</version>
+            <!--            <scope>test</scope>-->
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- lombok依赖 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>com.google.code.findbugs:jsr305</exclude>
+                                    <exclude>org.slf4j:*</exclude>
+                                    <exclude>log4j:*</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <!-- Do not copy the signatures in the META-INF folder.
+                                    Otherwise, this might cause SecurityExceptions when using the JAR. -->
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <!-- Do not copy the signatures in the META-INF folder.
+                                    Otherwise, this might cause SecurityExceptions when using the JAR. -->
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>hive-site.xml</exclude>
+                                        <exclude>core-default.xml</exclude>
+                                        <exclude>hdfs-default.xml</exclude>
+                                        <exclude>mapred-default.xml</exclude>
+                                        <exclude>yarn-default.xml</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <!--                            <transformers>-->
+                            <!--                                <transformer-->
+                            <!--                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
+                            <!--                                    <mainClass>cn.cisdigital.asset.process.kafka.DynamicDataProducer</mainClass>-->
+                            <!--                                </transformer>-->
+                            <!--                            </transformers>-->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/*.properties</exclude>
+                    <exclude>**/*.xml</exclude>
+                </excludes>
+            </resource>
+        </resources>
+    </build>
+
+    <distributionManagement>
+        <repository>
+            <id>maven-segma</id>
+            <url>http://nexus.segma.tech/repository/maven-segma/</url>
+        </repository>
+        <snapshotRepository>
+            <id>maven-segma</id>
+            <url>http://nexus.segma.tech/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <!-- dependence repository -->
+    <repositories>
+        <repository>
+            <id>nexus</id>
+            <name>maven-segma</name>
+            <url>http://nexus.segma.tech/repository/maven-group/</url>
+            <releases>
+            </releases>
+            <snapshots>
+            </snapshots>
+        </repository>
+    </repositories>
+    <!-- plugin repository -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>nexus</id>
+            <name>maven-segma</name>
+            <url>http://nexus.segma.tech/repository/maven-group/</url>
+            <releases>
+            </releases>
+            <snapshots>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+</project>
